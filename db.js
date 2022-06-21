@@ -36,11 +36,22 @@ module.exports.addUser = (first, last, signature) => {
         "signature",
         signature
     );
-    const q = `INSERT INTO signatures (first, last, signature) VALUES ($1, $2, $3)`;
+    const q = `INSERT INTO signatures (first, last, signature) VALUES ($1, $2, $3) RETURNING id`;
     const param = [first, last, signature];
     return db.query(q, param);
 };
 
 module.exports.getUser = () => {
-    return db.query(`SELECT first, last FROM signatures`);
+    return db.query(`SELECT * FROM signatures`);
 };
+// gettting signature by id query wo signatureid =
+
+module.exports.getSignitureId = (id) => {
+    return db.query(`SELECT signature AS url FROM signatures WHERE id = $1`, [
+        id,
+    ]);
+};
+
+// module.exports.getSignatures = () => {
+//     return db.query(`SELECT signature FROM signatures`);
+// };

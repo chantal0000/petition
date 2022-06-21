@@ -34,7 +34,7 @@ window.addEventListener("mouseup", (e) => {
         y = 0;
         isDrawing = false;
         document.getElementById("signature").value = mySign.toDataURL();
-        console.log(mySign.toDataURL());
+        // console.log(mySign.toDataURL());
     }
 });
 

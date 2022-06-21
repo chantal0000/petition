@@ -42,11 +42,11 @@ app.get("/petition", (req, res) => {
 app.post("/petition", (req, res) => {
     // res.render("/signed");
     // db.addUser(req.body)
-    db.addUser(req.body.first, req.body.last, req.body.signature)
+    db.addSigniture(req.body.first, req.body.last, req.body.signature)
         .then((results) => {
             req.session.signatureId = results.rows[0].id;
             console.log("omg it worked");
-            console.log("results", results.rows[0].id);
+            // console.log("results", results.rows[0].id);
             // currently not showing up oben richtiger name
             res.redirect("/thanks");
         })
@@ -54,15 +54,28 @@ app.post("/petition", (req, res) => {
 });
 
 app.get("/thanks", function (req, res) {
+    // how many ppl signed
+    //let signers = result.rows;
+    // db.countSignatures().then((result) => {
+    //     // req.session.countSignatures = results.rows[0].count;
+    //     let numSign = result.rows;
+    //     res.render("thanks", { title: "numSign", numSign });
+    // });
+
+    // falls nichts da zurück zu petition geleitet
+    if (!req.session.signatureId) {
+        return res.redirect("/petition");
+    }
     db.getSignitureId(req.session.signatureId).then((results) => {
         // loggen rows, object, data url
         //console.log("results", results);
         //WAS WILL ICH HIERMIT MACHEN?!
-        // console.log("results.rows[0].url:", results.rows[0].url);
-        req.session.signatureUrl = results.rows[0].url;
+        console.log(req.session);
+        console.log("results.rows[0].url:", results.rows);
+
         res.render("thanks", {
             data: {
-                url: req.session.signatureUrl,
+                url: results.rows[0].url,
             },
         });
     });
@@ -80,15 +93,15 @@ app.get("/thanks", function (req, res) {
     //     .catch((err) => console.log("err", err));
 });
 app.get("/signers", function (req, res) {
-    db.getUser()
+    db.getSigniture()
         .then(function (result) {
             console.log("result rows", result.rows);
-            const user = result.rows;
-            console.log(user);
+            const signer = result.rows;
+            console.log(signer);
 
             res.render("signers", {
-                title: "user",
-                user,
+                title: "signer",
+                signer,
             });
         })
         .catch(function (err) {

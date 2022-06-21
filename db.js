@@ -27,7 +27,7 @@ console.log("[db] connecting to:", database);
 // return db.query(q, param);
 // };
 
-module.exports.addUser = (first, last, signature) => {
+module.exports.addSigniture = (first, last, signature) => {
     console.log(
         "[db] first Name",
         first,
@@ -40,8 +40,8 @@ module.exports.addUser = (first, last, signature) => {
     const param = [first, last, signature];
     return db.query(q, param);
 };
-
-module.exports.getUser = () => {
+//change name to getsigniture
+module.exports.getSigniture = () => {
     return db.query(`SELECT * FROM signatures`);
 };
 // gettting signature by id query wo signatureid =
@@ -50,6 +50,10 @@ module.exports.getSignitureId = (id) => {
     return db.query(`SELECT signature AS url FROM signatures WHERE id = $1`, [
         id,
     ]);
+};
+
+module.exports.countSignatures = () => {
+    return db.query(`SELECT COUNT(id) FROM signatures`);
 };
 
 // module.exports.getSignatures = () => {

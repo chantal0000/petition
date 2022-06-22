@@ -13,49 +13,24 @@ const db = spicedPg(
 );
 
 console.log("[db] connecting to:", database);
-
-// actors example:
-// module.exports.getActors = () =>{
-//     return db.query(`SELECT * FROM actors`)
-// }
-
-// module.exports.addActor = (actorName, actorAge) => {
-//     console.log("[db]actorName", actorName, "[db]actorAge", actorAge);
-//     const q = `INSERT INTO actors (name, age)
-//    VALUES ($1, $2)`;
-// const param = [actorName, actorAge];
-// return db.query(q, param);
-// };
-
+// add the information that the signer put in to the databank petition
 module.exports.addSigniture = (first, last, signature) => {
-    console.log(
-        "[db] first Name",
-        first,
-        "last Name",
-        last,
-        "signature",
-        signature
-    );
+    console.log("[db] first", first, "last", last, "signature", signature);
     const q = `INSERT INTO signatures (first, last, signature) VALUES ($1, $2, $3) RETURNING id`;
     const param = [first, last, signature];
     return db.query(q, param);
 };
-//change name to getsigniture
+// get all information from the table signatures(that is inside the databank petition)
 module.exports.getSigniture = () => {
     return db.query(`SELECT * FROM signatures`);
 };
 // gettting signature by id query wo signatureid =
-
 module.exports.getSignitureId = (id) => {
     return db.query(`SELECT signature AS url FROM signatures WHERE id = $1`, [
         id,
     ]);
 };
-
+// get the count of signatures
 module.exports.countSignatures = () => {
     return db.query(`SELECT COUNT(id) FROM signatures`);
 };
-
-// module.exports.getSignatures = () => {
-//     return db.query(`SELECT signature FROM signatures`);
-// };

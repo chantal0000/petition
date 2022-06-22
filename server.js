@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
-const cookieParser = require("cookie-parser");
+//delete cookie-parser???
+// const cookieParser = require("cookie-parser");
 // middleware to implement the tamper proof cookie session
 const cookieSession = require("cookie-session");
 // setup HB EXPRESS
@@ -12,7 +13,7 @@ app.set("view engine", "handlebars");
 // access to public folder
 app.use(express.static("./public"));
 // cookie-parser for parsing and eventual cookie
-app.use(cookieParser());
+// app.use(cookieParser());
 //express.urlencoded for parsing your form POST request
 app.use(
     express.urlencoded({
@@ -23,7 +24,7 @@ app.use(
 app.use(
     cookieSession({
         secret: `I'm always angry.`,
-        maxAge: 1000 * 60 * 60 * 24 * 14,
+        maxAge: 1000 * 60 * 60 * 24 * 14, // keeps cookie for this amout of time
     })
 );
 
@@ -69,9 +70,8 @@ app.get("/thanks", function (req, res) {
     db.getSignitureId(req.session.signatureId).then((results) => {
         // loggen rows, object, data url
         //console.log("results", results);
-        //WAS WILL ICH HIERMIT MACHEN?!
-        console.log(req.session);
-        console.log("results.rows[0].url:", results.rows);
+        // console.log(req.session);
+        //console.log("results.rows[0].url:", results.rows);
 
         res.render("thanks", {
             data: {
@@ -95,9 +95,9 @@ app.get("/thanks", function (req, res) {
 app.get("/signers", function (req, res) {
     db.getSigniture()
         .then(function (result) {
-            console.log("result rows", result.rows);
+            // console.log("result rows", result.rows);
             const signer = result.rows;
-            console.log(signer);
+            //console.log(signer);
 
             res.render("signers", {
                 title: "signer",
@@ -107,6 +107,12 @@ app.get("/signers", function (req, res) {
         .catch(function (err) {
             console.log(err);
         });
+});
+
+//what is the logout route doing?
+app.get("/logout", (req, res) => {
+    req.session.signatureId = null;
+    res.redirect("/petition");
 });
 
 app.listen(8080, () => console.log("go got this petition stuff..."));

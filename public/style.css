@@ -1,9 +1,33 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 body {
     background-color: gold;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
 }
 
 canvas {
     border: 1px solid black;
     width: 560px;
     height: 360px;
+}
+
+img {
+    width: 400px;
+    height: 600px;
+    object-fit: cover;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container-text {
+    padding-left: 40px;
 }

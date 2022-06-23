@@ -8,8 +8,12 @@ const password = "postgres";
 // spicedPg requires information
 // 1. which database are we talking to? 2. :which user 3. :password 4. where is it running (which port)
 // 5.
+
+// before: `postgres:${username}:${password}@localhost:5432/${database}`
+// heroku: process.env.DATABASE_URL || ...
 const db = spicedPg(
-    `postgres:${username}:${password}@localhost:5432/${database}`
+    process.env.DATABASE_URL ||
+        `postgres:${username}:${password}@localhost:5432/${database}`
 );
 
 console.log("[db] connecting to:", database);

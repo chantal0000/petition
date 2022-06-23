@@ -20,24 +20,37 @@ app.use(
         extended: false,
     })
 );
+
+const COOKIE_SECRET =
+    process.env.COOKIE_SECRET || require("./secrets.json").COOKIE_SECRET;
 // middleware to implement the tamper proof cookie session
 app.use(
     cookieSession({
-        secret: `I'm always angry.`,
+        secret: COOKIE_SECRET,
         maxAge: 1000 * 60 * 60 * 24 * 14, // keeps cookie for this amout of time
     })
 );
+// get the register template
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+// app.post("register")
+app.post("/register", (req, res) => {
+    //call the bcrypt.hash function and pass it the password from req.body
+});
 
-//
 app.get("/petition", (req, res) => {
     // has my user already signed the petition? -> check cookie
-    // if yes redirect to thank you
-    // if no:
-
-    // The res.render() function is used to render a view and sends the rendered HTML string to the client.
-    res.render("petition");
-    // ?????
-    // res.redirect("/signed");
+    if (req.session.signatureId) {
+        // if yes redirect to thank you
+        res.redirect("/thanks");
+    } else {
+        // if no:
+        // The res.render() function is used to render a view and sends the rendered HTML string to the client.
+        res.render("petition");
+        // ?????
+        // res.redirect("/signed");
+    }
 });
 
 app.post("/petition", (req, res) => {
@@ -93,6 +106,9 @@ app.get("/thanks", function (req, res) {
     //     .catch((err) => console.log("err", err));
 });
 app.get("/signers", function (req, res) {
+    if (!req.session.signatureId) {
+        return res.redirect("/petition");
+    }
     db.getSigniture()
         .then(function (result) {
             // console.log("result rows", result.rows);
@@ -115,4 +131,10 @@ app.get("/logout", (req, res) => {
     res.redirect("/petition");
 });
 
-app.listen(8080, () => console.log("go got this petition stuff..."));
+//instead of using hard coded 8080 pick up from process.env.PORT
+// check if PORT is provided IF NOT run on 8080
+app.listen(process.env.PORT || 8080, () =>
+    console.log("go got this petition stuff...")
+);
+
+//PORT=8080 node server.js

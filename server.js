@@ -32,7 +32,7 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-    res.rendirect("petition");
+    res.redirect("petition");
 });
 
 // get the register template

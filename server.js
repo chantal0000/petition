@@ -30,6 +30,11 @@ app.use(
         maxAge: 1000 * 60 * 60 * 24 * 14, // keeps cookie for this amout of time
     })
 );
+
+app.get("/", (req, res) => {
+    res.rendirect("petition");
+});
+
 // get the register template
 app.get("/register", (req, res) => {
     res.render("register");

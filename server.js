@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-    res.redirect("/petition");
+    res.redirect("/register");
 });
 
 // get the register template
@@ -68,7 +68,8 @@ app.post("/register", (req, res) => {
                 .then((results) => {
                     req.session.user_id = results.rows[0].id;
                     req.session.login = true;
-                    res.redirect("/petition");
+                    //redirect to profile page
+                    res.redirect("/profile");
                 })
                 .catch((err) => {
                     res.render("register", {
@@ -90,9 +91,66 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    res.render("login");
-    // to do
+    // Pass req.body.email to a function that does a query to find user info by email
+    db.login(req.body.email).then((results) => {
+        console.log("req.body.email", req.body.email);
+        console.log("results.rows", results.rows);
+        bcrypt
+            .compare(req.body.password, results.rows[0].password)
+            .then((results) => {
+                req.session.login = true;
+
+                res.redirect("/petition");
+            })
+            .catch((err) => {
+                console.log("err /register", err);
+                // check if the pw the user typed in is the same as the one that was hashed
+            });
+        //If the user has signed, send them to /thanks after log in. If the user has not signed,
+        //send them to /petition after log in.
+        // res.render("login");
+        // // to do
+    });
 });
+
+///_____PROFILE_____///
+
+app.get("/profile", (req, res) => {
+    res.render("profile");
+});
+
+function areInputEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key].trim().length != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+app.post("/profile", (req, res) => {
+    // check to see that the user entered data into at least one of the fields.
+    // if they are empty:
+    if (areInputEmpty(req.body)) {
+        //we keep going but we dont add somthing in the Db.
+        //return;
+        return res.redirect("/petition");
+    }
+    // if they are not empty:
+
+    console.log("req.body.url.trim().length ", req.body.url.trim().length);
+
+    let url = req.body.url.trim().length != 0 ? req.body.url.trim() : null;
+    const age = req.body.age || null;
+    const city = req.body.city || null;
+
+    //newProfile = (age, city, user_id, url)
+    db.newProfile(age, city, req.session.user_id, url).then((results) => {});
+    // If YES: the user has filled out at least one field, pass the data from req.body plus the user's id from the session to a
+    // function that inserts the data into the new table. This would be a good place to make sure that
+    // the url starts with either 'http://', 'https://' or '//' and throw it out if it doesn't.
+});
+
+///____SIGN-PETITION____///
 
 app.get("/petition", (req, res) => {
     // has my user already signed the petition? -> check cookie
@@ -111,9 +169,10 @@ app.get("/petition", (req, res) => {
 app.post("/petition", (req, res) => {
     // res.render("/signed");
     // db.addUser(req.body)
-    db.addSigniture(req.body.first, req.body.last, req.body.signature)
+    db.addSigniture(req.body.signature, req.session.user_id)
         .then((results) => {
             req.session.signatureId = results.rows[0].id;
+            req.session.signed = true;
             console.log("omg it worked");
             // console.log("results", results.rows[0].id);
             // currently not showing up oben richtiger name
@@ -168,7 +227,7 @@ app.get("/signers", function (req, res) {
         .then(function (result) {
             // console.log("result rows", result.rows);
             const signer = result.rows;
-            //console.log(signer);
+            console.log(signer);
 
             res.render("signers", {
                 title: "signer",
@@ -180,10 +239,9 @@ app.get("/signers", function (req, res) {
         });
 });
 
-//what is the logout route doing?
 app.get("/logout", (req, res) => {
     req.session = null;
-    res.redirect("/petition");
+    res.redirect("/login");
 });
 
 //instead of using hard coded 8080 pick up from process.env.PORT

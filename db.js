@@ -18,10 +18,11 @@ const db = spicedPg(
 
 console.log("[db] connecting to:", database);
 // add the information that the signer put in to the databank petition
-module.exports.addSigniture = (first, last, signature) => {
-    console.log("[db] first", first, "last", last, "signature", signature);
-    const q = `INSERT INTO signatures (first, last, signature) VALUES ($1, $2, $3) RETURNING id`;
-    const param = [first, last, signature];
+
+module.exports.addSigniture = (signature, user_id) => {
+    console.log("signature", signature, "user_id", user_id);
+    const q = `INSERT INTO signatures (signature, user_id) VALUES ($1, $2) RETURNING id`;
+    const param = [signature, user_id];
     return db.query(q, param);
 };
 // get all information from the table signatures(that is inside the databank petition)
@@ -35,12 +36,33 @@ module.exports.getSignitureId = (id) => {
     ]);
 };
 // get the count of signatures
-module.exports.countSignatures = () => {
-    return db.query(`SELECT COUNT(id) FROM signatures`);
-};
+// module.exports.countSignatures = () => {
+//     return db.query(`SELECT COUNT(id)
+//                      FROM signatures`);
+// };
 
 module.exports.addUser = (first, last, email, password) => {
-    const q = `INSERT INTO users (first, last, email, password) VALUES ($1, $2, $3, $4) RETURNING id`;
+    const q = `INSERT INTO users (first, last, email, password) 
+               VALUES ($1, $2, $3, $4) 
+               RETURNING id, first, last`;
     const param = [first, last, email, password];
+    return db.query(q, param);
+};
+
+// login user
+
+module.exports.login = (email) => {
+    const q = `SELECT password, id 
+               FROM users 
+               WHERE email = $1`;
+    const param = [email];
+    return db.query(q, param);
+};
+
+module.exports.newProfile = (age, city, user_id, url) => {
+    const q = `INSERT INTO user_profiles (age, city, user_id, url) 
+               VALUES ($1, $2, $3, $4) 
+               RETURNING id, age, city, user_id, url`;
+    const param = [age, city, user_id, url];
     return db.query(q, param);
 };

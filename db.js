@@ -35,11 +35,11 @@ module.exports.getSignitureId = (id) => {
         id,
     ]);
 };
-// get the count of signatures
-// module.exports.countSignatures = () => {
-//     return db.query(`SELECT COUNT(id)
-//                      FROM signatures`);
-// };
+// get the total count of signatures
+module.exports.countSignatures = () => {
+    return db.query(`SELECT COUNT(id)
+                     FROM signatures`);
+};
 
 module.exports.addUser = (first, last, email, password) => {
     const q = `INSERT INTO users (first, last, email, password) 
@@ -65,4 +65,25 @@ module.exports.newProfile = (age, city, user_id, url) => {
                RETURNING id, age, city, user_id, url`;
     const param = [age, city, user_id, url];
     return db.query(q, param);
+};
+
+//___signers page____
+
+module.exports.getSignersInput = () => {
+    return db.query(`SELECT users.first, users.last, user_profiles.age, user_profiles.city, user_profiles.url FROM users
+LEFT OUTER JOIN user_profiles 
+on users.id = user_profiles.user_id`);
+};
+
+//-- get the city
+module.exports.getCity = (city) => {
+    return db.query(
+        `
+    SELECT users.first, users.last, user_profiles.age, user_profiles.city, user_profiles.url
+    FROM users
+    LEFT OUTER JOIN user_profiles ON users.id = user_profiles.user_id
+    JOIN signatures ON signatures.user_id = users.id
+    WHERE LOWER(city) = LOWER($1)`,
+        [city]
+    );
 };

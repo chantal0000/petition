@@ -144,7 +144,9 @@ app.post("/profile", (req, res) => {
     const city = req.body.city || null;
 
     //newProfile = (age, city, user_id, url)
-    db.newProfile(age, city, req.session.user_id, url).then((results) => {});
+    db.newProfile(age, city, req.session.user_id, url).then((results) => {
+        res.redirect("petition");
+    });
     // If YES: the user has filled out at least one field, pass the data from req.body plus the user's id from the session to a
     // function that inserts the data into the new table. This would be a good place to make sure that
     // the url starts with either 'http://', 'https://' or '//' and throw it out if it doesn't.
@@ -182,29 +184,22 @@ app.post("/petition", (req, res) => {
 });
 
 app.get("/thanks", function (req, res) {
-    // how many ppl signed
-    //let signers = result.rows;
-    // db.countSignatures().then((result) => {
-    //     // req.session.countSignatures = results.rows[0].count;
-    //     let numSign = result.rows;
-    //     res.render("thanks", { title: "numSign", numSign });
-    // });
-
-    // falls nichts da zurück zu petition geleitet
     if (!req.session.signatureId) {
         return res.redirect("/petition");
     }
     db.getSignitureId(req.session.signatureId).then((results) => {
-        // loggen rows, object, data url
-        //console.log("results", results);
-        // console.log(req.session);
-        //console.log("results.rows[0].url:", results.rows);
-
         res.render("thanks", {
             data: {
                 url: results.rows[0].url,
             },
         });
+        // db.countSignatures().then((results) => {
+        //     const numSign = results.rows;
+        //     res.render("thanks", {
+        //         numSign,
+        //         // signatureId,
+        //     });
+        // });
     });
     // von der datenbank die url holen, id geben hierfür
     // query schreiben in der Datenbank wo die id
@@ -219,24 +214,49 @@ app.get("/thanks", function (req, res) {
     //     })
     //     .catch((err) => console.log("err", err));
 });
+
+//____SIGNERS-PAGE__________
+// getting all of users and user-profiles info on the page
 app.get("/signers", function (req, res) {
     if (!req.session.signatureId) {
         return res.redirect("/petition");
     }
-    db.getSigniture()
-        .then(function (result) {
-            // console.log("result rows", result.rows);
-            const signer = result.rows;
-            console.log(signer);
+    db.getSignersInput(
+        req.body.first,
+        req.body.last,
+        req.body.age,
+        req.body.city,
+        req.body.url
+    ).then((results) => {
+        let signer = results.rows;
+        res.render("signers", {
+            title: "signer",
+            signer,
+        });
+    });
+});
 
+//______SIGNERS/:CITY
+
+app.get("/signers/:city", (req, res) => {
+    const { city } = req.params;
+    // db get signers by city
+    console.log("req.params", req.params);
+    db.getCity(city)
+        .then((results) => {
+            let signer = results.rows;
             res.render("signers", {
-                title: "signer",
+                title: "signers",
                 signer,
             });
         })
-        .catch(function (err) {
-            console.log(err);
-        });
+        .catch((err) => console.log("err", err));
+});
+
+///______EDIT-PROFILE_______
+
+app.get("/edit", (req, res) => {
+    res.render("edit");
 });
 
 app.get("/logout", (req, res) => {

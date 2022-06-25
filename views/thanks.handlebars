@@ -1,11 +1,18 @@
-<h2>thank you for signing</h2>
+<header>
+    <div class="header-content"><h3>**insert inspiring qoute here**</h3></div>
+</header>
 
-{{#data}}
-    <img src="{{url}}" alt="signature" />
-{{/data}}
+<div class="thanks-page">
+    <div class="thanks-body">
 
-<h2>ich will zählen</h2>
+        {{#data}}
+            <img id="img-signature" src="{{url}}" alt="signature" />
+        {{/data}}
+        <h2>thank you for signing</h2>
+        <h2>ich will zählen</h2>
 
-<h2>{{numSign}}</h2>
+        <h2>You and {{numSign}} People have signed</h2>
 
-<a href="/signers">see everyone that signed</a>
+        <a href="/signers">see everyone that signed</a>
+    </div>
+</div>

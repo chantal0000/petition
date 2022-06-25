@@ -1,13 +1,28 @@
-<h2>heres everyone that signed</h2>
+<header>
+    <div class="header-content"><h3>Register now! Sign the petition for free
+            menstrual products at SPICED Academy</h3></div>
+</header>
+<div class="signers-page">
+    <div clas="signers-body">
 
-<section id="user-signers">
+        <h2>heres everyone that signed</h2>
 
-    <ul id="user">
-        {{#signer}}
-            <li class="user">
-                <h2>{{first}} {{last}}</h2>
-            </li>
-        {{/signer}}
-    </ul>
+        <section id="user-signers">
 
-</section>
+            <ul id="user">
+                {{#signer}}
+                    <li class="user">
+                        <h2>{{first}}
+                            {{last}}
+                            {{age}}
+                            <span><a
+                                    href="/signers/{{city}}"
+                                >{{city}}</a></span>
+                            {{url}}</h2>
+                    </li>
+                {{/signer}}
+            </ul>
+
+        </section>
+    </div>
+</div>

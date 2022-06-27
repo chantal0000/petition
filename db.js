@@ -37,8 +37,9 @@ module.exports.getSignitureId = (id) => {
 };
 // get the total count of signatures
 module.exports.countSignatures = () => {
-    return db.query(`SELECT COUNT(id)
-                     FROM signatures`);
+    const q = `SELECT COUNT (id)
+                     FROM signatures`;
+    return db.query(q);
 };
 
 module.exports.addUser = (first, last, email, password) => {
@@ -86,4 +87,66 @@ module.exports.getCity = (city) => {
     WHERE LOWER(city) = LOWER($1)`,
         [city]
     );
+};
+
+//________________________PROFILE EDIT____________________________
+
+// user's first and last name, email from users table
+// age,city, url from user_profiles
+
+module.exports.getUserInfo = (userId) => {
+    const q = `SELECT users.first, users.last, users.email, user_profiles.age, user_profiles.city, user_profiles.url
+    FROM users
+    LEFT OUTER JOIN user_profiles
+    ON users.id = user_profiles.user_id
+    WHERE users.id = $1;`;
+    const param = [userId];
+    return db.query(q, param);
+};
+// POST /edit - this happens when the user clicks the 'submit' button
+
+// If user enters a new password - you'll need to run 2 queries!
+// 1st query - updates users & should update 4 columns (first, last, email & password)
+module.exports.editUsersInfoPassword = (
+    first,
+    last,
+    email,
+    password,
+    user_id
+) => {
+    const q = `UPDATE users
+SET first = $1, last = $2, email = $3, password = $4
+WHERE id = $5`;
+    const param = [first, last, email, password, user_id];
+    return db.query(q, param);
+};
+
+// If user doesn't enter a new password - you'll still need to run 2 queries!
+// 1st query - updates users & should update 3 columns (first, last & email)
+module.exports.editUsersInfoNoPassword = (first, last, email, user_id) => {
+    console.log(first, last, email, user_id);
+    const q = `UPDATE users 
+    SET first = $1, last = $2, email = $3
+    WHERE id = $4`;
+    const param = [first, last, email, user_id];
+    return db.query(q, param);
+};
+
+// 2nd query - updates user_profiles (our UPSERT query!)
+
+module.exports.upsertProfileInfo = (age, city, url, user_id) => {
+    const q = `INSERT INTO user_profiles (age, city, url, user_id)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (user_id)
+    DO UPDATE SET age = $1, city = $2, url = $3`;
+    const param = [age || null, city || null, url || null, user_id];
+    return db.query(q, param);
+};
+
+//________________________DELETE SIGNATURE____________________________
+
+module.exports.deleteSignature = (userId) => {
+    const q = `DELETE FROM signatures WHERE user_id = $1`;
+    const param = [userId];
+    return db.query(q, param);
 };

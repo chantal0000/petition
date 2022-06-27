@@ -1,32 +1,36 @@
 <div class="edit-page">
 <h2>make changes to your profile here</h2>
 <div class="edit-body">
+{{#userInfo}}
 <form method="post">
     <div class="edit-input">
 <label>First Name</label>
-<input id="firstName" name="firstName" type="text"></input>
+<input value="{{first}}" id="firstName" name="first" type="text"></input>
 
 <label>Last Name</label>
-<input id="lastName" name="lastName" type="text"></input>
+<input value="{{last}}" id="lastName" name="last" type="text"></input>
 
 <label>E-Mail</label>
-<input id="email" name="email" type="email"></input>
+<input value="{{email}}" id="email" name="email" type="email"></input>
 
 <label>Password</label>
-<input type="password" id="password" name="password"></input>
+<input type="password" placeholder="update your password" id="password" name="password"></input>
 
 <label>Age</label>
-<input id="age" name="age" type="number" min="0"></input>
+<input value="{{age}}" id="age" name="age" type="number" min="0"></input>
 
 <label>City</label>
-<input id="city" name="city" type="text"></input>
+<input value="{{city}}" id="city" name="city" type="text"></input>
 
 <label>your url</label>
-<input id="homepage" name="homepage" type="url"></input>
+<input value="{{url}}" id="homepage" name="homepage" type="url"></input>
 </div>
 <button id="update">save or safe changes</button>
 
     <h1>field to delete signature</h1>
+    </form>
 </div>
 </div>
+
+{{/userInfo}}
 

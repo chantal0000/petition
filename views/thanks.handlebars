@@ -7,12 +7,15 @@
 
         {{#data}}
             <img id="img-signature" src="{{url}}" alt="signature" />
+
+            <h2>Thank you for signing</h2>
+
+            <h2>You and {{numSign}} People have signed!</h2>
         {{/data}}
-        <h2>thank you for signing</h2>
-        <h2>ich will zählen</h2>
-
-        <h2>You and {{numSign}} People have signed</h2>
-
-        <a href="/signers">see everyone that signed</a>
+        <a href="/signers">See everyone that signed...</a>
+        <form method="post">
+            <button id="delete-signature" type="submit">delete signature</button>
+        </form>
     </div>
+
 </div>

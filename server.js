@@ -27,7 +27,7 @@ app.use(
         maxAge: 1000 * 60 * 60 * 24 * 14, // keeps cookie for this amout of time
     })
 );
-// from notes, ??
+
 app.use((req, res, next) => {
     console.log("--------------------------");
     console.log(req.url);
@@ -64,12 +64,7 @@ app.post("/register", (req, res) => {
     bcrypt
         .hash(req.body.password)
         .then((hash) => {
-            db.addUser(
-                req.body.firstName,
-                req.body.lastName,
-                req.body.email,
-                hash
-            )
+            db.addUser(req.body.first, req.body.last, req.body.email, hash)
                 .then((results) => {
                     req.session.user_id = results.rows[0].id;
                     req.session.login = true;
@@ -104,34 +99,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    // Pass req.body.email to a function that does a query to find user info by email
-    db.login(req.body.email)
-        .then((results) => {
-            console.log("req.body.email", req.body.email);
-            console.log("results.rows", results.rows);
-            bcrypt
-                .compare(req.body.password, results.rows[0].password)
-                .then((results) => {
-                    req.session.login = true;
-
-                    res.redirect("/petition");
-                })
-                .catch((err) => {
-                    console.log("err /register", err);
-                    // check if the pw the user typed in is the same as the one that was hashed
-                });
-            //If the user has signed, send them to /thanks after log in. If the user has not signed,
-            //send them to /petition after log in.
-            // res.render("login");
-            // // to do
-        })
-        .catch((err) => {
-            console.log("error in login", err);
-            res.render("login", {
-                title: "Login",
-                error: true,
-            });
-        });
+    // TO DO LOGIN
 });
 
 ///_____PROFILE_____///
@@ -221,31 +189,30 @@ app.get("/thanks", function (req, res) {
         return res.redirect("/petition");
     }
     db.getSignitureId(req.session.signatureId).then((results) => {
-        res.render("thanks", {
-            data: {
-                url: results.rows[0].url,
-            },
+        const signatureURL = results.rows[0].url;
+        db.countSignatures().then((results) => {
+            const numSign = results.rows[0].count;
+            res.render("thanks", {
+                data: {
+                    url: signatureURL,
+                    numSign,
+                },
+            });
         });
-        // db.countSignatures().then((results) => {
-        //     const numSign = results.rows;
-        //     res.render("thanks", {
-        //         numSign,
-        //         // signatureId,
-        //     });
-        // });
     });
-    // von der datenbank die url holen, id geben hierfür
-    // query schreiben in der Datenbank wo die id
-    //console.log("req.session", req.session.signatureId);
+});
 
-    // getting img of the url / signature
-    // db.getSignatures(req.body.signature)
-    //     .then(() => {
-    //         console.log("omg it worked");
-    //         // currently not showing up oben richtiger name
-    //         res.redirect("/thanks");
-    //     })
-    //     .catch((err) => console.log("err", err));
+// DELETE SIGNATURE
+app.post("/thanks", (req, res) => {
+    db.deleteSignature(req.session.signatureId)
+        .then((results) => {
+            req.session.signed = false;
+            req.session.signatureId = null;
+            res.redirect("/petition");
+        })
+        .catch((err) => {
+            console.log("error in delete sign", err);
+        });
 });
 
 //____SIGNERS-PAGE__________
@@ -289,9 +256,92 @@ app.get("/signers/:city", (req, res) => {
 ///______EDIT-PROFILE_______
 
 app.get("/edit", (req, res) => {
-    res.render("edit");
+    db.getUserInfo(req.session.user_id)
+        .then((results) => {
+            res.render("edit", {
+                title: "Edit",
+                userInfo: results.rows[0],
+            });
+        })
+        .catch((err) => {
+            console.log("error getUserInfo", err);
+        });
 });
 
+// notes from class
+app.post("/edit", (req, res) => {
+    if (req.body.password === "") {
+        db.editUsersInfoNoPassword(
+            req.body.first,
+            req.body.last,
+            req.body.email,
+            req.session.user_id
+        )
+            .then(() => {
+                db.upsertProfileInfo(
+                    req.body.age,
+                    req.body.city,
+                    req.body.url,
+                    req.session.user_id
+                )
+                    .then(() => {
+                        res.redirect("/thanks");
+                    })
+                    .catch((err) => {
+                        console.log("error in upsertProfileInfo NoPW", err);
+                    });
+            })
+            .catch((err) => {
+                console.log("error in EDIT NO PW", err);
+            });
+    } else {
+        bcrypt
+            .hash(req.body.password)
+            .then((hash) => {
+                db.editUsersInfoPassword(
+                    req.body.first,
+                    req.body.last,
+                    req.body.email,
+                    hash,
+                    req.session.user_id
+                )
+                    .then(() => {
+                        db.upsertProfileInfo(
+                            req.body.age,
+                            req.body.city,
+                            req.body.url,
+                            req.session.user_id
+                        )
+                            .then(() => {
+                                res.redirect("/thanks");
+                            })
+                            .catch(function (err) {
+                                console.log(err);
+                            });
+                    })
+                    .catch((err) => {
+                        res.render("edit", {
+                            title: "edit",
+                            error: true,
+                        });
+                    });
+            })
+            .catch((err) => {
+                console.log("err /register", err);
+            });
+    }
+
+    // if (user entered password) {
+    //     // hash the new password
+    //     // update 4 columns in users
+    //     // run upsert for user_profiles
+    // } else {
+    //     // no password provided so only update 3 columns in users
+    //     // run upsert for user_profiles
+    // }
+});
+
+// LOGOUT
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/login");

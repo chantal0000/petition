@@ -164,8 +164,8 @@ header {
 
 .petition-body {
     position: absolute;
-    top: 35%;
-    left: 45%;
+    top: 60%;
+    left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
 }
@@ -191,13 +191,13 @@ header {
 /* SIGNERS */
 
 .signers-page {
-    height: 90%;
+    height: 100%;
     width: 1199px;
 }
 
 .signers-body {
     position: absolute;
-    top: 70%;
+    top: 80%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: left;

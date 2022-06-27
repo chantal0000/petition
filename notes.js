@@ -16,5 +16,8 @@
 // do cookie logic last
 // - GET Petition step one (skip until cookie is done)
 
-//FRAGEN
-//
+// MIDDLEWARE
+
+// if you are not logged in you are not supposed to go anywehere
+// if you are logged in you should not be able to go to login
+// use middleware so you dont have to write it in all get. individually

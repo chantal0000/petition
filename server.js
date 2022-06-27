@@ -1,20 +1,16 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
-//delete cookie-parser???
-// const cookieParser = require("cookie-parser");
-// middleware to implement the tamper proof cookie session
 const cookieSession = require("cookie-session");
 const bcrypt = require("./bcrypt");
-// setup HB EXPRESS
+//____________SET UP HANDLEBARS________________//
 const { engine } = require("express-handlebars");
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 
 // access to public folder
 app.use(express.static("./public"));
-// cookie-parser for parsing and eventual cookie
-// app.use(cookieParser());
+
 //express.urlencoded for parsing your form POST request
 app.use(
     express.urlencoded({
@@ -47,11 +43,20 @@ app.get("/", (req, res) => {
 
 // get the register template
 app.get("/register", (req, res) => {
-    if (req.session.login) {
-        res.redirect("/petition");
-    } else {
-        res.render("register");
+    if (req.session.signatureId) {
+        return res.redirect("/thanks");
+    } else if (req.session.user_id) {
+        return res.redirect("/petition");
     }
+    res.render("register", {
+        title: "Register",
+    });
+
+    // if (req.session.login) {
+    //     res.redirect("/petition");
+    // } else {
+    //     res.render("register");
+    // }
 });
 // app.post("register")
 app.post("/register", (req, res) => {
@@ -73,6 +78,7 @@ app.post("/register", (req, res) => {
                 })
                 .catch((err) => {
                     res.render("register", {
+                        title: "Register",
                         error: true,
                     });
                 });
@@ -87,39 +93,59 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    res.render("login");
+    if (req.session.signatureId) {
+        return res.redirect("/thanks");
+    } else if (req.session.user_id) {
+        return res.redirect("/petition");
+    }
+    res.render("login", {
+        title: "Login",
+    });
 });
 
 app.post("/login", (req, res) => {
     // Pass req.body.email to a function that does a query to find user info by email
-    db.login(req.body.email).then((results) => {
-        console.log("req.body.email", req.body.email);
-        console.log("results.rows", results.rows);
-        bcrypt
-            .compare(req.body.password, results.rows[0].password)
-            .then((results) => {
-                req.session.login = true;
+    db.login(req.body.email)
+        .then((results) => {
+            console.log("req.body.email", req.body.email);
+            console.log("results.rows", results.rows);
+            bcrypt
+                .compare(req.body.password, results.rows[0].password)
+                .then((results) => {
+                    req.session.login = true;
 
-                res.redirect("/petition");
-            })
-            .catch((err) => {
-                console.log("err /register", err);
-                // check if the pw the user typed in is the same as the one that was hashed
+                    res.redirect("/petition");
+                })
+                .catch((err) => {
+                    console.log("err /register", err);
+                    // check if the pw the user typed in is the same as the one that was hashed
+                });
+            //If the user has signed, send them to /thanks after log in. If the user has not signed,
+            //send them to /petition after log in.
+            // res.render("login");
+            // // to do
+        })
+        .catch((err) => {
+            console.log("error in login", err);
+            res.render("login", {
+                title: "Login",
+                error: true,
             });
-        //If the user has signed, send them to /thanks after log in. If the user has not signed,
-        //send them to /petition after log in.
-        // res.render("login");
-        // // to do
-    });
+        });
 });
 
 ///_____PROFILE_____///
 
 app.get("/profile", (req, res) => {
-    res.render("profile");
+    if (!req.session.user_id) {
+        return res.redirect("/register");
+    }
+    res.render("profile", {
+        title: "Profile",
+    });
 });
 
-function areInputEmpty(obj) {
+function isInputEmpty(obj) {
     for (let key in obj) {
         if (obj[key].trim().length != 0) {
             return false;
@@ -130,7 +156,7 @@ function areInputEmpty(obj) {
 app.post("/profile", (req, res) => {
     // check to see that the user entered data into at least one of the fields.
     // if they are empty:
-    if (areInputEmpty(req.body)) {
+    if (isInputEmpty(req.body)) {
         //we keep going but we dont add somthing in the Db.
         //return;
         return res.redirect("/petition");
@@ -144,33 +170,34 @@ app.post("/profile", (req, res) => {
     const city = req.body.city || null;
 
     //newProfile = (age, city, user_id, url)
-    db.newProfile(age, city, req.session.user_id, url).then((results) => {
-        res.redirect("petition");
-    });
-    // If YES: the user has filled out at least one field, pass the data from req.body plus the user's id from the session to a
-    // function that inserts the data into the new table. This would be a good place to make sure that
-    // the url starts with either 'http://', 'https://' or '//' and throw it out if it doesn't.
+    db.newProfile(age, city, req.session.user_id, url)
+        .then((results) => {
+            res.redirect("petition");
+        })
+        .catch((err) => {
+            console.log("error in [db]newProfile");
+            res.render("profile", {
+                title: "Profile",
+                error: true,
+            });
+        });
 });
 
 ///____SIGN-PETITION____///
 
 app.get("/petition", (req, res) => {
-    // has my user already signed the petition? -> check cookie
-    if (req.session.signatureId) {
-        // if yes redirect to thank you
+    if (!req.session.user_id) {
+        return res.redirect("/register");
+    } else if (req.session.signatureId) {
         res.redirect("/thanks");
     } else {
-        // if no:
-        // The res.render() function is used to render a view and sends the rendered HTML string to the client.
-        res.render("petition");
-        // ?????
-        // res.redirect("/signed");
+        res.render("petition", {
+            title: "Petition",
+        });
     }
 });
 
 app.post("/petition", (req, res) => {
-    // res.render("/signed");
-    // db.addUser(req.body)
     db.addSigniture(req.body.signature, req.session.user_id)
         .then((results) => {
             req.session.signatureId = results.rows[0].id;
@@ -180,9 +207,15 @@ app.post("/petition", (req, res) => {
             // currently not showing up oben richtiger name
             res.redirect("/thanks");
         })
-        .catch((err) => console.log("err", err));
+        .catch((err) => {
+            console.log("error in [db]addSigniture", err);
+            res.render("petition", {
+                title: "Petition",
+                error: true,
+            });
+        });
 });
-
+// AB HIER COOKIES CHECKEN
 app.get("/thanks", function (req, res) {
     if (!req.session.signatureId) {
         return res.redirect("/petition");

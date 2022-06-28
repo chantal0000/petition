@@ -10,7 +10,7 @@ body {
     line-height: 1.5;
     /* display: grid; */
     background-color: #b47eb3;
-    padding: 0 2rem;
+    /* padding: 0 2rem; */
 }
 
 canvas {
@@ -21,17 +21,11 @@ canvas {
 
 .img-signature {
     width: 300px;
-    height: 600px;
+    height: 300px;
     object-fit: cover;
 }
 
 /* register-page */
-
-#register-img {
-    object-fit: cover;
-    width: 400px;
-    height: 700px;
-}
 
 .split {
     height: 100%;
@@ -115,15 +109,18 @@ button {
 
 footer {
     position: fixed;
+    height: 60px;
     right: 0;
-    bottom: 0;
+    bottom: 0px;
     left: 0;
     padding: 1rem;
     background-color: #efefef;
     text-align: center;
+    margin-top: auto;
 }
+*/
 
-header {
+/* header {
     position: absolute;
     display: flex;
     align-items: center;
@@ -140,7 +137,7 @@ header {
     font-size: 30px;
     align-items: center;
     text-align: center;
-}
+} */
 
 /* LOGIN  */
 
@@ -155,7 +152,7 @@ header {
 .login-page {
     background-image: url("/small-tampon.png");
 
-    width: 1199px;
+    width: 100%;
 }
 
 /* PETITION */
@@ -229,4 +226,63 @@ header {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+/* REGISTER-PAGE */
+
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0px;
+    justify-content: center;
+}
+
+/* THANKS-PAGE */
+.flex-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0px;
+    justify-content: center;
+    padding-bottom: 70px;
+}
+
+.box1,
+.box2,
+.box3,
+.wrapper-box {
+    padding: 20px;
+    margin: 20px;
+    align-self: center;
+}
+
+.flex-item1,
+.flex-item2 {
+    padding: 20px;
+    margin: 20px;
+}
+
+#register-img,
+#login-img {
+    object-fit: cover;
+    width: 500px;
+    height: 500px;
+}
+
+/* HEADER */
+header {
+    right: 0;
+    top: 0;
+    left: 0;
+    background-color: #e6e49f;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+}
+
+#profile {
+    background-image: url("/tampon.png");
+    background-repeat: no-repeat;
 }

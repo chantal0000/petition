@@ -1,22 +1,21 @@
 <header>
-    <div class="header-content"><h3>**insert inspiring qoute here**</h3></div>
+    <h1>**insert smart things here**</h1>
 </header>
-
-<div class="thanks-page">
-    <div class="thanks-body">
-
-        {{#data}}
-            <img id="img-signature" src="{{url}}" alt="signature" />
-
-            <h2>Thank you for signing</h2>
-
-            <h2>You and {{numSign}} People have signed!</h2>
-        {{/data}}
-        <button><a href="/signers">See everyone that signed...</a></button>
-        <button><a href="/edit">edit your profile</a></button>
-        <form method="post">
-            <button id="delete-signature" type="submit">delete signature</button>
-        </form>
-    </div>
-
+<div class="flex-wrapper">
+    <div class="box1">
+{{#data}}
+    <img id="img-signature" src="{{url}}" alt="signature" />
+</div>
+<div class="box2">
+    <h2>Thank you for signing!</h2>
+    <h2>{{numSign}} People have signed!</h2>
+{{/data}}
+</div>
+<div class="box3">
+<button><a href="/signers">See everyone that signed...</a></button>
+<button><a href="/edit">edit your profile</a></button>
+<form method="post">
+    <button id="delete-signature" type="submit">delete signature</button>
+</form>
+</div>
 </div>

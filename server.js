@@ -51,12 +51,6 @@ app.get("/register", (req, res) => {
     res.render("register", {
         title: "Register",
     });
-
-    // if (req.session.login) {
-    //     res.redirect("/petition");
-    // } else {
-    //     res.render("register");
-    // }
 });
 // app.post("register")
 app.post("/register", (req, res) => {

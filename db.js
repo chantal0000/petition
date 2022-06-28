@@ -29,6 +29,14 @@ module.exports.addSigniture = (signature, user_id) => {
 module.exports.getSigniture = () => {
     return db.query(`SELECT * FROM signatures`);
 };
+
+module.exports.findSignature = (userId) => {
+    const q = `SELECT * FROM signatures
+WHERE user_id = $1`;
+    const param = [userId];
+    return db.query(q, param);
+};
+
 // gettting signature by id query wo signatureid =
 module.exports.getSignitureId = (id) => {
     return db.query(`SELECT signature AS url FROM signatures WHERE id = $1`, [
@@ -82,8 +90,8 @@ module.exports.getCity = (city) => {
         `
     SELECT users.first, users.last, user_profiles.age, user_profiles.city, user_profiles.url
     FROM users
-    LEFT OUTER JOIN user_profiles ON users.id = user_profiles.user_id
-    JOIN signatures ON signatures.user_id = users.id
+    LEFT OUTER JOIN user_profiles 
+    ON users.id = user_profiles.user_id
     WHERE LOWER(city) = LOWER($1)`,
         [city]
     );

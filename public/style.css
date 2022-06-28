@@ -45,6 +45,7 @@ canvas {
 
 .left {
     left: 0;
+    top: 7%;
     background-color: white;
 }
 
@@ -67,6 +68,11 @@ canvas {
     top: 45%;
     left: 34%;
     transform: translate(-50%, -50%);
+    text-align: left;
+}
+
+.left footer {
+    background-color: white;
     text-align: left;
 }
 
@@ -107,28 +113,20 @@ button {
 
 /* FOOTER & HEADER */
 
-/* footer {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    height: 4rem;
+footer {
+    position: fixed;
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: #e6e49f;
-} */
-
-footer {
-    background-color: #f1f1f1;
+    padding: 1rem;
+    background-color: #efefef;
     text-align: center;
-    padding: 10px;
 }
 
 header {
     position: absolute;
     display: flex;
     align-items: center;
-    height: 6rem;
     right: 0;
     top: 0;
     left: 0;
@@ -148,7 +146,7 @@ header {
 
 .login-body {
     position: absolute;
-    top: 25%;
+    top: 38%;
     left: 75%;
     transform: translate(-50%, -50%);
     text-align: left;
@@ -156,7 +154,7 @@ header {
 
 .login-page {
     background-image: url("/small-tampon.png");
-    height: 100%;
+
     width: 1199px;
 }
 
@@ -164,19 +162,19 @@ header {
 
 .petition-body {
     position: absolute;
-    top: 60%;
+    top: 54%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
 }
 
 .petition-page {
-    height: 90%;
     width: 1199px;
 }
 
+/* THANKS */
+
 .thanks-page {
-    height: 90%;
     width: 1199px;
 }
 
@@ -191,14 +189,44 @@ header {
 /* SIGNERS */
 
 .signers-page {
-    height: 100%;
     width: 1199px;
 }
 
 .signers-body {
     position: absolute;
-    top: 80%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: left;
+}
+
+/* PROFILE */
+
+.profile-body {
+    position: absolute;
+    top: 57%;
+    left: 73%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.profile-page {
+    width: 1199px;
+    background-image: url("/pad.png");
+    background-position: right top;
+    background-repeat: repeat-x;
+}
+
+/* LOGOUT LINK/(BUTTON) */
+
+#logout {
+    text-align: right;
+    position: absolute;
+    right: 4%;
+    font-size: 20px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }

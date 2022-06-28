@@ -88,18 +88,62 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    if (req.session.signatureId) {
-        return res.redirect("/thanks");
-    } else if (req.session.user_id) {
-        return res.redirect("/petition");
+    if (!req.session.user_id) {
+        res.render("login", {
+            title: "login",
+        });
+    } else {
+        res.redirect("/petition");
     }
-    res.render("login", {
-        title: "Login",
-    });
 });
 
 app.post("/login", (req, res) => {
-    // TO DO LOGIN
+    db.login(req.body.email)
+        .then((results) => {
+            //console.log(results.rows[0].password);
+            if (results.rows[0]) {
+                return bcrypt
+                    .compare(req.body.password, results.rows[0].password)
+                    .then(function (pwCompare) {
+                        if (pwCompare) {
+                            req.session.login = true;
+                            req.session.user_id = results.rows[0].id;
+
+                            db.findSignature(req.session.user_id)
+                                .then((results) => {
+                                    if (results.rows[0]) {
+                                        req.session.signed = true;
+                                        req.session.signatureId =
+                                            results.rows[0].id;
+                                        res.redirect("/thanks");
+                                    } else {
+                                        res.redirect("/petition");
+                                    }
+                                })
+                                .catch((err) => {
+                                    console.log("error sig", err);
+                                });
+                        } else {
+                            res.render("login", {
+                                title: "login",
+                                error: true,
+                            });
+                        }
+                    });
+            } else {
+                res.render("login", {
+                    title: "login",
+                    error: true,
+                });
+            }
+        })
+        .catch((err) => {
+            console.log("err in login", err);
+            res.render("login", {
+                title: "Login",
+                error: true,
+            });
+        });
 });
 
 ///_____PROFILE_____///
@@ -239,15 +283,16 @@ app.get("/signers", function (req, res) {
 //______SIGNERS/:CITY
 
 app.get("/signers/:city", (req, res) => {
-    const { city } = req.params;
+    let city = req.params.city;
     // db get signers by city
-    console.log("req.params", req.params);
+    console.log("req.params", req.params.city);
     db.getCity(city)
         .then((results) => {
-            let signer = results.rows;
+            const resultCity = results.rows;
             res.render("signers", {
                 title: "signers",
-                signer,
+                signer: resultCity,
+                city: resultCity[0].city,
             });
         })
         .catch((err) => console.log("err", err));
@@ -256,16 +301,21 @@ app.get("/signers/:city", (req, res) => {
 ///______EDIT-PROFILE_______
 
 app.get("/edit", (req, res) => {
-    db.getUserInfo(req.session.user_id)
-        .then((results) => {
-            res.render("edit", {
-                title: "Edit",
-                userInfo: results.rows[0],
+    if (req.session.user_id) {
+        db.getUserInfo(req.session.user_id)
+            .then((results) => {
+                res.render("edit", {
+                    title: "Edit",
+                    userInfo: results.rows[0],
+                });
+            })
+
+            .catch((err) => {
+                console.log("error getUserInfo", err);
             });
-        })
-        .catch((err) => {
-            console.log("error getUserInfo", err);
-        });
+    } else {
+        return res.redirect("/register");
+    }
 });
 
 // notes from class
@@ -330,15 +380,6 @@ app.post("/edit", (req, res) => {
                 console.log("err /register", err);
             });
     }
-
-    // if (user entered password) {
-    //     // hash the new password
-    //     // update 4 columns in users
-    //     // run upsert for user_profiles
-    // } else {
-    //     // no password provided so only update 3 columns in users
-    //     // run upsert for user_profiles
-    // }
 });
 
 // LOGOUT

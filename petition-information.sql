@@ -21,6 +21,6 @@ CREATE TABLE user_profiles (
 id SERIAL PRIMARY KEY,
 age INT,
 city VARCHAR,
-user_id INT NOT NULL,
+user_id INT NOT NULL UNIQUE,
 url VARCHAR
 );
